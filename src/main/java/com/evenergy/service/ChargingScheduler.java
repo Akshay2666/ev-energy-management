@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ChargingScheduler {
+public class   ChargingScheduler {
 
     public double calculateAvailablePower(ChargingSite site) {
         return site.getAvailableChargingPowerKW();
@@ -26,7 +26,13 @@ public class ChargingScheduler {
         );
 
 
-        for (EV ev : evList) {
+        List<EV> sortedEVs = new java.util.ArrayList<>(evList);
+
+        sortedEVs.sort(
+                java.util.Comparator.comparingInt(EV::getPriority)
+        );
+
+        for (EV ev : sortedEVs) {
             double allocatedPower = Math.min(
                     ev.getMaxChargingPowerKW(),
                     remainingPower
@@ -36,6 +42,7 @@ public class ChargingScheduler {
 
             remainingPower -= allocatedPower;
         }
+
 
         double totalAllocatedPower = 0.0;
 

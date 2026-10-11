@@ -17,12 +17,12 @@ public class EVController {
 
     @GetMapping("/api/ev/sample")
     public EV getSampleEV() {
-        return new EV("EV001", 80.0, 30.0, 90.0, 11.0);
+        return new EV("EV001", 80.0, 30.0, 90.0, 11.0,1);
     }
 
     @GetMapping("/api/ev/energy")
     public double getRequiredEnergy() {
-        EV ev = new EV("EV001", 80.0, 30.0, 90.0, 11.0);
+        EV ev = new EV("EV001", 80.0, 30.0, 90.0, 11.0,1);
 
         return ev.getRequiredEnergyKWh();
     }
@@ -31,9 +31,9 @@ public class EVController {
     @GetMapping("/api/ev/all")
     public List<EV> getAllEVs() {
 
-        EV ev1 = new EV("EV001", 80.0, 30.0, 90.0, 11.0);
-        EV ev2 = new EV("EV002", 60.0, 50.0, 80.0, 7.0);
-        EV ev3 = new EV("EV003", 100.0, 20.0, 100.0, 22.0);
+        EV ev1 = new EV("EV001", 80.0, 30.0, 90.0, 11.0,1);
+        EV ev2 = new EV("EV002", 60.0, 50.0, 80.0, 7.0,2);
+        EV ev3 = new EV("EV003", 100.0, 20.0, 100.0, 22.0,3);
 
         return List.of(ev1, ev2, ev3);
     }
@@ -41,9 +41,9 @@ public class EVController {
     @GetMapping("/api/ev/energy/all")
     public List<EVEnergyResponse> getAllEVEnergy() {
 
-        EV ev1 = new EV("EV001", 80.0, 30.0, 90.0, 11.0);
-        EV ev2 = new EV("EV002", 60.0, 50.0, 80.0, 7.0);
-        EV ev3 = new EV("EV003", 100.0, 20.0, 100.0, 22.0);
+        EV ev1 = new EV("EV001", 80.0, 30.0, 90.0, 11.0,1);
+        EV ev2 = new EV("EV002", 60.0, 50.0, 80.0, 7.0,2);
+        EV ev3 = new EV("EV003", 100.0, 20.0, 100.0, 22.0,3);
 
         List<EV> vehicles = List.of(ev1, ev2, ev3);
         List<EVEnergyResponse> results = new ArrayList<>();

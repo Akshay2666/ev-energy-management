@@ -129,5 +129,62 @@ class ChargingSchedulerTest {
         }
     }
 
+    @Test
+    void shouldReturnEmptyAllocationsWhenNoEVsArePresent() {
+
+        ChargingSite site = new ChargingSite(500.0, 300.0);
+
+        List<EV> evList = List.of();
+
+        ChargingScheduler scheduler = new ChargingScheduler();
+
+        Map<String, Double> allocations =
+                scheduler.allocateChargingPower(site, evList);
+
+        assertTrue(allocations.isEmpty());
+    }
+
+    @Test
+    void shouldAllocateZeroPowerWhenNoPowerIsAvailable() {
+
+        ChargingSite site = new ChargingSite(500.0, 500.0);
+
+        List<EV> evList = List.of(
+                new EV("EV001", 80.0, 30.0, 90.0, 11.0, 1),
+                new EV("EV002", 60.0, 50.0, 80.0, 7.0, 2),
+                new EV("EV003", 100.0, 20.0, 100.0, 22.0, 3)
+        );
+
+        ChargingScheduler scheduler = new ChargingScheduler();
+
+        Map<String, Double> allocations =
+                scheduler.allocateChargingPower(site, evList);
+
+        assertEquals(0.0, allocations.get("EV001"), 0.001);
+        assertEquals(0.0, allocations.get("EV002"), 0.001);
+        assertEquals(0.0, allocations.get("EV003"), 0.001);
+    }
+
+    @Test
+    void shouldNeverAllocateNegativePower() {
+
+        ChargingSite site = new ChargingSite(500.0, 495.0);
+
+        List<EV> evList = List.of(
+                new EV("EV001", 80.0, 30.0, 90.0, 11.0, 1),
+                new EV("EV002", 60.0, 50.0, 80.0, 7.0, 2),
+                new EV("EV003", 100.0, 20.0, 100.0, 22.0, 3)
+        );
+
+        ChargingScheduler scheduler = new ChargingScheduler();
+
+        Map<String, Double> allocations =
+                scheduler.allocateChargingPower(site, evList);
+
+        for (double allocatedPower : allocations.values()) {
+            assertTrue(allocatedPower >= 0.0);
+        }
+    }
+
 }
 

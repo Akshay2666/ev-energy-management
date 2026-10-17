@@ -186,5 +186,31 @@ class ChargingSchedulerTest {
         }
     }
 
+    @Test
+    void shouldNeverExceedAvailableSitePower() {
+
+        ChargingSite site = new ChargingSite(500.0, 470.0);
+
+        List<EV> evList = List.of(
+                new EV("EV001", 80.0, 30.0, 90.0, 11.0, 1),
+                new EV("EV002", 60.0, 50.0, 80.0, 7.0, 2),
+                new EV("EV003", 100.0, 20.0, 100.0, 22.0, 3)
+        );
+
+        ChargingScheduler scheduler = new ChargingScheduler();
+
+        Map<String, Double> allocations =
+                scheduler.allocateChargingPower(site, evList);
+
+        double totalAllocated = allocations.values()
+                .stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        assertTrue(
+                totalAllocated <= site.getAvailableChargingPowerKW()
+        );
+    }
+
 }
 

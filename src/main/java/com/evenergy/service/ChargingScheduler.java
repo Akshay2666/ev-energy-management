@@ -43,20 +43,6 @@ public class   ChargingScheduler {
             remainingPower -= allocatedPower;
         }
 
-
-        double totalAllocatedPower = 0.0;
-
-        for (double power : allocations.values()) {
-            totalAllocatedPower += power;
-        }
-
-        System.out.println("Total allocated power: "
-                + totalAllocatedPower + " kW");
-
-        System.out.println("Available site power: "
-                + Math.max(0.0, calculateAvailablePower(site))
-                + " kW");
-
         return allocations;
     }
 }

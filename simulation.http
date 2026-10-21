@@ -1,0 +1,33 @@
+
+POST http://localhost:8080/api/scheduler/simulate/custom
+Content-Type: application/json
+
+{
+  "buildingLoadKW": 480,
+  "evList": [
+    {
+      "vehicleId": "EV101",
+      "batteryCapacityKWh": 80,
+      "currentSOC": 30,
+      "targetSOC": 90,
+      "maxChargingPowerKW": 11,
+      "priority": 1
+    },
+    {
+      "vehicleId": "EV102",
+      "batteryCapacityKWh": 60,
+      "currentSOC": 50,
+      "targetSOC": 80,
+      "maxChargingPowerKW": 7,
+      "priority": 2
+    },
+    {
+      "vehicleId": "EV103",
+      "batteryCapacityKWh": 100,
+      "currentSOC": 20,
+      "targetSOC": 100,
+      "maxChargingPowerKW": 22,
+      "priority": 3
+    }
+  ]
+}

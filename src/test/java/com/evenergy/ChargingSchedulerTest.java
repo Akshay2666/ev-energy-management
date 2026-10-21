@@ -212,5 +212,38 @@ class ChargingSchedulerTest {
         );
     }
 
+    @Test
+    void shouldRejectNegativeBatteryCapacity() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new EV("EV001", -80.0, 30.0, 90.0, 11.0, 1)
+        );
+    }
+
+    @Test
+    void shouldRejectInvalidCurrentSOC() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new EV("EV001", 80.0, -5.0, 90.0, 11.0, 1)
+        );
+    }
+
+    @Test
+    void shouldRejectTargetSOCAbove100() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new EV("EV001", 80.0, 30.0, 110.0, 11.0, 1)
+        );
+    }
+    @Test
+    void shouldRejectNegativeMaximumChargingPower() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new EV("EV001", 80.0, 30.0, 90.0, -11.0, 1)
+        );
+    }
 }
 

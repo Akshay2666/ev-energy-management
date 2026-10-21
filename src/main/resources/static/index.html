@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart EV Energy Management</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #102b46, #176b59);
+            color: white;
+            padding: 32px 7%;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: clamp(24px, 4vw, 34px);
+        }
+
+        header p {
+            margin: 0;
+            color: #d1fae5;
+        }
+
+        main {
+            width: min(1100px, 94%);
+            margin: 30px auto;
+        }
+
+        .panel {
+            background: white;
+            padding: 26px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            color: #123b50;
+            font-size: 22px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            color: #1e293b;
+            font: inherit;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid #34a982;
+            outline-offset: 1px;
+            border-color: #087f5b;
+        }
+
+        button {
+            background: #087f5b;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 18px 8px 0 0;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        button:hover {
+            background: #066649;
+            transform: translateY(-1px);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .metric {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            padding: 20px;
+            border-radius: 10px;
+            color: #166534;
+            font-size: 14px;
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 26px;
+            margin-top: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        #message,
+        #historyMessage,
+        #simulationResult {
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 24px 5%;
+            }
+
+            main {
+                width: 94%;
+                margin: 18px auto;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            button {
+                max-width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <h1>Smart EV Energy Management</h1>
+    <p>Dynamic charging allocation and grid power monitoring</p>
+</header>
+
+<main>
+    <section class="panel">
+        <h2>Site Power Configuration</h2>
+        <div class="grid">
+            <div>
+                <label for="capacity">Grid Capacity (kW)</label>
+                <input id="capacity" type="number" min="1" value="300">
+            </div>
+            <div>
+                <label for="building">Building Load (kW)</label>
+                <input id="building" type="number" min="0" value="280">
+            </div>
+        </div>
+        <button onclick="updatePower()">Calculate Available Power</button>
+        <div class="metrics" style="margin-top:20px">
+            <div class="metric">Grid Capacity<strong id="gridValue">300 kW</strong></div>
+            <div class="metric">Building Load<strong id="buildingValue">280 kW</strong></div>
+            <div class="metric">Available for EVs<strong id="availableValue">20 kW</strong></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Charging Simulation</h2>
+
+        <div class="grid">
+            <div>
+                <label for="vehicleId">Vehicle ID</label>
+                <input id="vehicleId" type="text" value="EV101">
+            </div>
+            <div>
+                <label for="battery">Battery Capacity (kWh)</label>
+                <input id="battery" type="number" min="0.1" value="60">
+            </div>
+            <div>
+                <label for="currentSOC">Current Battery SOC (%)</label>
+                <input id="currentSOC" type="number" min="0" max="100" value="30">
+            </div>
+            <div>
+                <label for="targetSOC">Target Battery SOC (%)</label>
+                <input id="targetSOC" type="number" min="0" max="100" value="80">
+            </div>
+            <div>
+                <label for="maxPower">Maximum Charging Power (kW)</label>
+                <input id="maxPower" type="number" min="0.1" value="11">
+            </div>
+            <div>
+                <label for="priority">Priority</label>
+                <select id="priority">
+                    <option value="1">1 - High</option>
+                    <option value="2" selected>2 - Normal</option>
+                    <option value="3">3 - Low</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="runSimulation()">Run Charging Simulation</button>
+        <div id="simulationResult" style="margin-top: 20px;"></div>
+
+        <p>Use the existing API documentation to run a simulation while we connect the dashboard to your backend.</p>
+        <button onclick="window.open('/swagger-ui/index.html', '_blank')">Open API Documentation</button>
+        <button onclick="window.open('/api/scheduler/history', '_blank')">View Saved Simulation History</button>
+        <div id="message"></div>
+    </section>
+
+    <section class="panel">
+        <h2>Simulation History</h2>
+        <button onclick="loadHistory()">Refresh History</button>
+        <p id="historyMessage"></p>
+
+        <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+                <thead>
+                <tr>
+                    <th style="padding:10px;">Vehicle ID</th>
+                    <th style="padding:10px;">Priority</th>
+                    <th style="padding:10px;">Allocated Power (kW)</th>
+                    <th style="padding:10px;">Building Load (kW)</th>
+                    <th style="padding:10px;">Grid Capacity (kW)</th>
+                </tr>
+                </thead>
+                <tbody id="historyTable">
+                <tr><td colspan="5" style="padding:10px;">Click Refresh History to load records.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<footer>Smart EV Energy Management &amp; Dynamic Charging Optimization Platform</footer>
+
+<script>
+    function updatePower() {
+        const capacity = Number(document.getElementById('capacity').value);
+        const building = Number(document.getElementById('building').value);
+
+        if (!Number.isFinite(capacity) || !Number.isFinite(building) ||
+            capacity <= 0 || building < 0) {
+            alert('Enter a positive grid capacity and a non-negative building load.');
+            return;
+        }
+
+        document.getElementById('gridValue').textContent = capacity + ' kW';
+        document.getElementById('buildingValue').textContent = building + ' kW';
+        document.getElementById('availableValue').textContent =
+            Math.max(0, capacity - building) + ' kW';
+    }
+
+async function runSimulation() {
+    const result = document.getElementById('simulationResult');
+    result.textContent = 'Running charging simulation...';
+
+    const capacity = Number(document.getElementById('capacity').value);
+    const building = Number(document.getElementById('building').value);
+    const battery = Number(document.getElementById('battery').value);
+    const currentSOC = Number(document.getElementById('currentSOC').value);
+    const targetSOC = Number(document.getElementById('targetSOC').value);
+    const maxPower = Number(document.getElementById('maxPower').value);
+    const vehicleId = document.getElementById('vehicleId').value.trim();
+    const priority = Number(document.getElementById('priority').value);
+
+    if (!vehicleId || capacity <= 0 || building < 0 ||
+        battery <= 0 || currentSOC < 0 || currentSOC > 100 ||
+        targetSOC < currentSOC || targetSOC > 100 || maxPower <= 0 ||
+        ![capacity, building, battery, currentSOC, targetSOC, maxPower]
+            .every(Number.isFinite)) {
+        result.textContent = 'Please check your inputs. Target SOC must be at least current SOC.';
+        return;
+    }
+
+    const request = {
+        maxGridCapacityKW: capacity,
+        buildingLoadKW: building,
+        evList: [{
+            vehicleId: vehicleId,
+            batteryCapacityKWh: battery,
+            currentSOC: currentSOC,
+            targetSOC: targetSOC,
+            maxChargingPowerKW: maxPower,
+            priority: priority
+        }]
+    };
+
+    try {
+        const response = await fetch('/api/scheduler/simulate/custom/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        });
+
+        if (!response.ok) {
+            throw new Error('Server returned HTTP ' + response.status +
+                ': ' + await response.text());
+        }
+
+        const data = await response.json();
+        result.textContent = 'Simulation saved successfully!\n\n' +
+            JSON.stringify(data, null, 2);
+        updatePower();
+    } catch (error) {
+        result.textContent = 'Simulation failed: ' + error.message;
+    }
+}
+
+async function loadHistory() {
+    const table = document.getElementById('historyTable');
+    const message = document.getElementById('historyMessage');
+
+    message.textContent = 'Loading history...';
+
+    try {
+        const response = await fetch('/api/scheduler/history');
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        const records = await response.json();
+        table.replaceChildren();
+
+        if (!records.length) {
+            table.innerHTML =
+                '<tr><td colspan="5" style="padding:10px;">No saved simulations yet.</td></tr>';
+            message.textContent = '';
+            return;
+        }
+
+        records.forEach(record => {
+            const row = document.createElement('tr');
+
+            [
+                record.vehicleId,
+                record.priority,
+                record.allocatedPowerKW,
+                record.buildingLoadKW,
+                record.maxGridCapacityKW
+            ].forEach(value => {
+                const cell = document.createElement('td');
+                cell.style.padding = '10px';
+                cell.style.borderTop = '1px solid #e2e8f0';
+                cell.textContent = value ?? '';
+                row.appendChild(cell);
+            });
+
+            table.appendChild(row);
+        });
+
+        message.textContent = records.length + ' saved records loaded.';
+    } catch (error) {
+        message.textContent = 'Could not load history: ' + error.message;
+    }
+}
+
+    updatePower();
+</script>
+</body>
+</html>
